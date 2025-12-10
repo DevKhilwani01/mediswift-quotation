@@ -4,16 +4,33 @@
   <meta charset="UTF-8" />
   <title>Mediswift Quotation Generator</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 10px;
+      margin: 0;
+      padding: 16px;
+      background: #f5f5f5;
+    }
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 16px 20px 24px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.08);
     }
     h1 {
       text-align: center;
       font-size: 22px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 16px;
     }
     .section-title {
       margin-top: 15px;
@@ -23,88 +40,142 @@
       border-bottom: 1px solid #ccc;
       padding-bottom: 3px;
     }
-    .product {
-      border: 1px solid #ddd;
-      padding: 8px;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
-    .product-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
     label {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
+      display: block;
+      margin-bottom: 2px;
     }
     input, textarea, select, button {
       width: 100%;
-      box-sizing: border-box;
       padding: 6px;
       font-size: 13px;
-      margin-top: 3px;
-    }
-    .row-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-    .row-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
       margin-bottom: 6px;
     }
     textarea {
-      min-height: 260px;
+      min-height: 220px;
       white-space: pre-wrap;
     }
-    .buttons {
-      margin: 10px 0;
-      display: flex;
+    .row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
+      margin-bottom: 8px;
+    }
+    .row-8 {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 8px;
     }
     .small-note {
       font-size: 11px;
       color: #555;
+      margin-bottom: 8px;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    button {
+      width: auto;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background: #f0f0f0;
+    }
+    button.primary {
+      background: #007bff;
+      border-color: #007bff;
+      color: #fff;
+    }
+    button.danger {
+      background: #dc3545;
+      border-color: #dc3545;
+      color: #fff;
+    }
+    button.secondary {
+      background: #6c757d;
+      border-color: #6c757d;
+      color: #fff;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .product-card {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      background: #fafafa;
+    }
+    .product-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .product-card-title {
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .product-card-lines {
+      font-size: 12px;
+      white-space: pre-wrap;
+      margin-bottom: 4px;
+    }
+    .product-card-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    @media (max-width: 900px) {
+      .row-8 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 600px) {
+      .row-8 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Mediswift Quotation Generator</h1>
-
-  <div class="section-title">Products</div>
-
-  <!-- PRODUCT 1 -->
-  <div class="product">
-    <div class="product-header">
-      <input type="checkbox" id="p1_enabled" checked />
-      <label for="p1_enabled">Product 1</label>
+  <div class="app">
+    <h1>Mediswift Quotation Generator</h1>
+    <div class="subtitle">
+      Select preset from Google Sheet → adjust → <b>Add Product to Quote</b> → repeat for all products.
     </div>
 
-    <label>Select Product (from Google Sheet)</label>
-    <select id="p1_product" onchange="onProductChange('p1')">
+    <!-- PRODUCT FORM (single, reusable) -->
+    <div class="section-title">Product Details</div>
+
+    <label for="product_preset">Select Product Preset (from Google Sheet)</label>
+    <select id="product_preset" onchange="onPresetChange()">
       <option value="">Loading...</option>
     </select>
     <div class="small-note">
-      Product list comes from your online Google Sheet (product presets).
+      Product presets are loaded from your Google Sheet (tab: <b>Products</b>).
     </div>
 
-    <div class="row-3" style="margin-top:8px;">
+    <div class="row-3">
       <div>
-        <label>Product Name</label>
-        <input id="p1_name" placeholder="Zopiclone" />
+        <label for="prod_name">Product Name</label>
+        <input id="prod_name" placeholder="Zopiclone" />
       </div>
       <div>
-        <label>Power</label>
-        <input id="p1_power" placeholder="7.5 mg" />
+        <label for="prod_power">Power</label>
+        <input id="prod_power" placeholder="7.5 mg" />
       </div>
       <div>
-        <label>Dosage Form</label>
-        <select id="p1_form">
+        <label for="prod_form">Dosage Form</label>
+        <select id="prod_form">
           <option>Tablets</option>
           <option>Capsules</option>
           <option>Injection</option>
@@ -114,16 +185,16 @@
       </div>
     </div>
 
-    <!-- 10 qty line -->
-    <label>10 Qty Line</label>
-    <div class="row-4">
+    <!-- Line 1 -->
+    <div class="small-note"><b>Line 1</b> (e.g. 10 packs (100 pills) = 10 USD (8 GBP))</div>
+    <div class="row-8">
       <div>
-        <label>Qty</label>
-        <input id="p1_q10" placeholder="10" />
+        <label for="l1_qty">Qty</label>
+        <input id="l1_qty" placeholder="10" />
       </div>
       <div>
-        <label>Unit</label>
-        <select id="p1_unit10">
+        <label for="l1_unit">Unit</label>
+        <select id="l1_unit">
           <option>packs</option>
           <option>strip</option>
           <option>box</option>
@@ -131,12 +202,12 @@
         </select>
       </div>
       <div>
-        <label>Pills Qty</label>
-        <input id="p1_pillsqty10" placeholder="100" />
+        <label for="l1_pillsqty">Pills Qty</label>
+        <input id="l1_pillsqty" placeholder="100" />
       </div>
       <div>
-        <label>Pills Unit</label>
-        <select id="p1_pillsunit10">
+        <label for="l1_pillsunit">Pills Unit</label>
+        <select id="l1_pillsunit">
           <option>pills</option>
           <option>sachets</option>
           <option>tube</option>
@@ -146,15 +217,13 @@
           <option>capsule</option>
         </select>
       </div>
-    </div>
-    <div class="row-4">
       <div>
-        <label>Price Amount</label>
-        <input id="p1_priceamt10" placeholder="10" />
+        <label for="l1_priceamt">Price Amt</label>
+        <input id="l1_priceamt" placeholder="10" />
       </div>
       <div>
-        <label>Currency</label>
-        <select id="p1_pricecur10">
+        <label for="l1_pricecur">Currency</label>
+        <select id="l1_pricecur">
           <option>USD</option>
           <option>EUR</option>
           <option>GBP</option>
@@ -175,12 +244,12 @@
         </select>
       </div>
       <div>
-        <label>Alt Amount</label>
-        <input id="p1_altamt10" placeholder="8" />
+        <label for="l1_altamt">Alt Amt</label>
+        <input id="l1_altamt" placeholder="8" />
       </div>
       <div>
-        <label>Alt Currency</label>
-        <select id="p1_altcur10">
+        <label for="l1_altcur">Alt Currency</label>
+        <select id="l1_altcur">
           <option>GBP</option>
           <option>USD</option>
           <option>EUR</option>
@@ -202,16 +271,16 @@
       </div>
     </div>
 
-    <!-- 50 qty line -->
-    <label>50 Qty Line</label>
-    <div class="row-4">
+    <!-- Line 2 -->
+    <div class="small-note"><b>Line 2</b> (e.g. 50 packs (500 pills) = 45 USD (34 GBP))</div>
+    <div class="row-8">
       <div>
-        <label>Qty</label>
-        <input id="p1_q50" placeholder="50" />
+        <label for="l2_qty">Qty</label>
+        <input id="l2_qty" placeholder="50" />
       </div>
       <div>
-        <label>Unit</label>
-        <select id="p1_unit50">
+        <label for="l2_unit">Unit</label>
+        <select id="l2_unit">
           <option>packs</option>
           <option>strip</option>
           <option>box</option>
@@ -219,12 +288,12 @@
         </select>
       </div>
       <div>
-        <label>Pills Qty</label>
-        <input id="p1_pillsqty50" placeholder="500" />
+        <label for="l2_pillsqty">Pills Qty</label>
+        <input id="l2_pillsqty" placeholder="500" />
       </div>
       <div>
-        <label>Pills Unit</label>
-        <select id="p1_pillsunit50">
+        <label for="l2_pillsunit">Pills Unit</label>
+        <select id="l2_pillsunit">
           <option>pills</option>
           <option>sachets</option>
           <option>tube</option>
@@ -234,15 +303,13 @@
           <option>capsule</option>
         </select>
       </div>
-    </div>
-    <div class="row-4">
       <div>
-        <label>Price Amount</label>
-        <input id="p1_priceamt50" placeholder="45" />
+        <label for="l2_priceamt">Price Amt</label>
+        <input id="l2_priceamt" placeholder="45" />
       </div>
       <div>
-        <label>Currency</label>
-        <select id="p1_pricecur50">
+        <label for="l2_pricecur">Currency</label>
+        <select id="l2_pricecur">
           <option>USD</option>
           <option>EUR</option>
           <option>GBP</option>
@@ -263,12 +330,12 @@
         </select>
       </div>
       <div>
-        <label>Alt Amount</label>
-        <input id="p1_altamt50" placeholder="34" />
+        <label for="l2_altamt">Alt Amt</label>
+        <input id="l2_altamt" placeholder="34" />
       </div>
       <div>
-        <label>Alt Currency</label>
-        <select id="p1_altcur50">
+        <label for="l2_altcur">Alt Currency</label>
+        <select id="l2_altcur">
           <option>GBP</option>
           <option>USD</option>
           <option>EUR</option>
@@ -290,16 +357,16 @@
       </div>
     </div>
 
-    <!-- 100 qty line -->
-    <label>100 Qty Line</label>
-    <div class="row-4">
+    <!-- Line 3 -->
+    <div class="small-note"><b>Line 3</b> (e.g. 100 packs (1000 pills) = 75 USD (56 GBP))</div>
+    <div class="row-8">
       <div>
-        <label>Qty</label>
-        <input id="p1_q100" placeholder="100" />
+        <label for="l3_qty">Qty</label>
+        <input id="l3_qty" placeholder="100" />
       </div>
       <div>
-        <label>Unit</label>
-        <select id="p1_unit100">
+        <label for="l3_unit">Unit</label>
+        <select id="l3_unit">
           <option>packs</option>
           <option>strip</option>
           <option>box</option>
@@ -307,12 +374,12 @@
         </select>
       </div>
       <div>
-        <label>Pills Qty</label>
-        <input id="p1_pillsqty100" placeholder="1000" />
+        <label for="l3_pillsqty">Pills Qty</label>
+        <input id="l3_pillsqty" placeholder="1000" />
       </div>
       <div>
-        <label>Pills Unit</label>
-        <select id="p1_pillsunit100">
+        <label for="l3_pillsunit">Pills Unit</label>
+        <select id="l3_pillsunit">
           <option>pills</option>
           <option>sachets</option>
           <option>tube</option>
@@ -322,15 +389,13 @@
           <option>capsule</option>
         </select>
       </div>
-    </div>
-    <div class="row-4">
       <div>
-        <label>Price Amount</label>
-        <input id="p1_priceamt100" placeholder="75" />
+        <label for="l3_priceamt">Price Amt</label>
+        <input id="l3_priceamt" placeholder="75" />
       </div>
       <div>
-        <label>Currency</label>
-        <select id="p1_pricecur100">
+        <label for="l3_pricecur">Currency</label>
+        <select id="l3_pricecur">
           <option>USD</option>
           <option>EUR</option>
           <option>GBP</option>
@@ -351,12 +416,12 @@
         </select>
       </div>
       <div>
-        <label>Alt Amount</label>
-        <input id="p1_altamt100" placeholder="56" />
+        <label for="l3_altamt">Alt Amt</label>
+        <input id="l3_altamt" placeholder="56" />
       </div>
       <div>
-        <label>Alt Currency</label>
-        <select id="p1_altcur100">
+        <label for="l3_altcur">Alt Currency</label>
+        <select id="l3_altcur">
           <option>GBP</option>
           <option>USD</option>
           <option>EUR</option>
@@ -377,780 +442,373 @@
         </select>
       </div>
     </div>
+
+    <div class="buttons">
+      <button class="primary" type="button" onclick="addProductToQuote()">Add Product to Quote</button>
+      <button class="secondary" type="button" onclick="clearProductForm()">Clear Form</button>
+    </div>
+
+    <!-- PRODUCTS ADDED TO THIS QUOTATION -->
+    <div class="section-title">Products in this Quotation</div>
+    <div id="quoteProducts" class="small-note">
+      No products added yet. Fill the form above and click “Add Product to Quote”.
+    </div>
+
+    <!-- GENERATE QUOTATION -->
+    <div class="section-title">Generated Quotation</div>
+    <div class="buttons">
+      <button class="primary" type="button" onclick="generateQuotation()">Generate Quotation</button>
+      <button type="button" onclick="copyOutput()">Copy to Clipboard</button>
+    </div>
+    <textarea id="output" readonly placeholder="Your quotation will appear here..."></textarea>
   </div>
-
-  <!-- PRODUCT 2 -->
-  <div class="product">
-    <div class="product-header">
-      <input type="checkbox" id="p2_enabled" />
-      <label for="p2_enabled">Product 2</label>
-    </div>
-
-    <label>Select Product (from Google Sheet)</label>
-    <select id="p2_product" onchange="onProductChange('p2')">
-      <option value="">Loading...</option>
-    </select>
-
-    <div class="row-3" style="margin-top:8px;">
-      <div>
-        <label>Product Name</label>
-        <input id="p2_name" placeholder="Zopiclone" />
-      </div>
-      <div>
-        <label>Power</label>
-        <input id="p2_power" placeholder="10 mg" />
-      </div>
-      <div>
-        <label>Dosage Form</label>
-        <select id="p2_form">
-          <option>Tablets</option>
-          <option>Capsules</option>
-          <option>Injection</option>
-          <option>Tube</option>
-          <option>Inhaler</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- 10 qty line -->
-    <label>10 Qty Line</label>
-    <div class="row-4">
-      <div>
-        <label>Qty</label>
-        <input id="p2_q10" placeholder="10" />
-      </div>
-      <div>
-        <label>Unit</label>
-        <select id="p2_unit10">
-          <option>packs</option>
-          <option>strip</option>
-          <option>box</option>
-          <option>sachets</option>
-        </select>
-      </div>
-      <div>
-        <label>Pills Qty</label>
-        <input id="p2_pillsqty10" placeholder="100" />
-      </div>
-      <div>
-        <label>Pills Unit</label>
-        <select id="p2_pillsunit10">
-          <option>pills</option>
-          <option>sachets</option>
-          <option>tube</option>
-          <option>injection</option>
-          <option>vial</option>
-          <option>ampouls</option>
-          <option>capsule</option>
-        </select>
-      </div>
-    </div>
-    <div class="row-4">
-      <div>
-        <label>Price Amount</label>
-        <input id="p2_priceamt10" placeholder="11" />
-      </div>
-      <div>
-        <label>Currency</label>
-        <select id="p2_pricecur10">
-          <option>USD</option>
-          <option>EUR</option>
-          <option>GBP</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-      <div>
-        <label>Alt Amount</label>
-        <input id="p2_altamt10" placeholder="9" />
-      </div>
-      <div>
-        <label>Alt Currency</label>
-        <select id="p2_altcur10">
-          <option>GBP</option>
-          <option>USD</option>
-          <option>EUR</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- 50 qty line -->
-    <label>50 Qty Line</label>
-    <div class="row-4">
-      <div>
-        <label>Qty</label>
-        <input id="p2_q50" placeholder="50" />
-      </div>
-      <div>
-        <label>Unit</label>
-        <select id="p2_unit50">
-          <option>packs</option>
-          <option>strip</option>
-          <option>box</option>
-          <option>sachets</option>
-        </select>
-      </div>
-      <div>
-        <label>Pills Qty</label>
-        <input id="p2_pillsqty50" placeholder="500" />
-      </div>
-      <div>
-        <label>Pills Unit</label>
-        <select id="p2_pillsunit50">
-          <option>pills</option>
-          <option>sachets</option>
-          <option>tube</option>
-          <option>injection</option>
-          <option>vial</option>
-          <option>ampouls</option>
-          <option>capsule</option>
-        </select>
-      </div>
-    </div>
-    <div class="row-4">
-      <div>
-        <label>Price Amount</label>
-        <input id="p2_priceamt50" placeholder="50" />
-      </div>
-      <div>
-        <label>Currency</label>
-        <select id="p2_pricecur50">
-          <option>USD</option>
-          <option>EUR</option>
-          <option>GBP</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-      <div>
-        <label>Alt Amount</label>
-        <input id="p2_altamt50" placeholder="38" />
-      </div>
-      <div>
-        <label>Alt Currency</label>
-        <select id="p2_altcur50">
-          <option>GBP</option>
-          <option>USD</option>
-          <option>EUR</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- 100 qty line -->
-    <label>100 Qty Line</label>
-    <div class="row-4">
-      <div>
-        <label>Qty</label>
-        <input id="p2_q100" placeholder="100" />
-      </div>
-      <div>
-        <label>Unit</label>
-        <select id="p2_unit100">
-          <option>packs</option>
-          <option>strip</option>
-          <option>box</option>
-          <option>sachets</option>
-        </select>
-      </div>
-      <div>
-        <label>Pills Qty</label>
-        <input id="p2_pillsqty100" placeholder="1000" />
-      </div>
-      <div>
-        <label>Pills Unit</label>
-        <select id="p2_pillsunit100">
-          <option>pills</option>
-          <option>sachets</option>
-          <option>tube</option>
-          <option>injection</option>
-          <option>vial</option>
-          <option>ampouls</option>
-          <option>capsule</option>
-        </select>
-      </div>
-    </div>
-    <div class="row-4">
-      <div>
-        <label>Price Amount</label>
-        <input id="p2_priceamt100" placeholder="80" />
-      </div>
-      <div>
-        <label>Currency</label>
-        <select id="p2_pricecur100">
-          <option>USD</option>
-          <option>EUR</option>
-          <option>GBP</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-      <div>
-        <label>Alt Amount</label>
-        <input id="p2_altamt100" placeholder="60" />
-      </div>
-      <div>
-        <label>Alt Currency</label>
-        <select id="p2_altcur100">
-          <option>GBP</option>
-          <option>USD</option>
-          <option>EUR</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <!-- PRODUCT 3 -->
-  <div class="product">
-    <div class="product-header">
-      <input type="checkbox" id="p3_enabled" />
-      <label for="p3_enabled">Product 3</label>
-    </div>
-
-    <label>Select Product (from Google Sheet)</label>
-    <select id="p3_product" onchange="onProductChange('p3')">
-      <option value="">Loading...</option>
-    </select>
-
-    <div class="row-3" style="margin-top:8px;">
-      <div>
-        <label>Product Name</label>
-        <input id="p3_name" placeholder="Zopiclone" />
-      </div>
-      <div>
-        <label>Power</label>
-        <input id="p3_power" placeholder="20 mg" />
-      </div>
-      <div>
-        <label>Dosage Form</label>
-        <select id="p3_form">
-          <option>Tablets</option>
-          <option>Capsules</option>
-          <option>Injection</option>
-          <option>Tube</option>
-          <option>Inhaler</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- 10 qty line -->
-    <label>10 Qty Line</label>
-    <div class="row-4">
-      <div>
-        <label>Qty</label>
-        <input id="p3_q10" placeholder="10" />
-      </div>
-      <div>
-        <label>Unit</label>
-        <select id="p3_unit10">
-          <option>packs</option>
-          <option>strip</option>
-          <option>box</option>
-          <option>sachets</option>
-        </select>
-      </div>
-      <div>
-        <label>Pills Qty</label>
-        <input id="p3_pillsqty10" placeholder="100" />
-      </div>
-      <div>
-        <label>Pills Unit</label>
-        <select id="p3_pillsunit10">
-          <option>pills</option>
-          <option>sachets</option>
-          <option>tube</option>
-          <option>injection</option>
-          <option>vial</option>
-          <option>ampouls</option>
-          <option>capsule</option>
-        </select>
-      </div>
-    </div>
-    <div class="row-4">
-      <div>
-        <label>Price Amount</label>
-        <input id="p3_priceamt10" placeholder="12" />
-      </div>
-      <div>
-        <label>Currency</label>
-        <select id="p3_pricecur10">
-          <option>USD</option>
-          <option>EUR</option>
-          <option>GBP</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-      <div>
-        <label>Alt Amount</label>
-        <input id="p3_altamt10" placeholder="9" />
-      </div>
-      <div>
-        <label>Alt Currency</label>
-        <select id="p3_altcur10">
-          <option>GBP</option>
-          <option>USD</option>
-          <option>EUR</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- 50 qty line -->
-    <label>50 Qty Line</label>
-    <div class="row-4">
-      <div>
-        <label>Qty</label>
-        <input id="p3_q50" placeholder="50" />
-      </div>
-      <div>
-        <label>Unit</label>
-        <select id="p3_unit50">
-          <option>packs</option>
-          <option>strip</option>
-          <option>box</option>
-          <option>sachets</option>
-        </select>
-      </div>
-      <div>
-        <label>Pills Qty</label>
-        <input id="p3_pillsqty50" placeholder="500" />
-      </div>
-      <div>
-        <label>Pills Unit</label>
-        <select id="p3_pillsunit50">
-          <option>pills</option>
-          <option>sachets</option>
-          <option>tube</option>
-          <option>injection</option>
-          <option>vial</option>
-          <option>ampouls</option>
-          <option>capsule</option>
-        </select>
-      </div>
-    </div>
-    <div class="row-4">
-      <div>
-        <label>Price Amount</label>
-        <input id="p3_priceamt50" placeholder="55" />
-      </div>
-      <div>
-        <label>Currency</label>
-        <select id="p3_pricecur50">
-          <option>USD</option>
-          <option>EUR</option>
-          <option>GBP</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-      <div>
-        <label>Alt Amount</label>
-        <input id="p3_altamt50" placeholder="41" />
-      </div>
-      <div>
-        <label>Alt Currency</label>
-        <select id="p3_altcur50">
-          <option>GBP</option>
-          <option>USD</option>
-          <option>EUR</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- 100 qty line -->
-    <label>100 Qty Line</label>
-    <div class="row-4">
-      <div>
-        <label>Qty</label>
-        <input id="p3_q100" placeholder="100" />
-      </div>
-      <div>
-        <label>Unit</label>
-        <select id="p3_unit100">
-          <option>packs</option>
-          <option>strip</option>
-          <option>box</option>
-          <option>sachets</option>
-        </select>
-      </div>
-      <div>
-        <label>Pills Qty</label>
-        <input id="p3_pillsqty100" placeholder="1000" />
-      </div>
-      <div>
-        <label>Pills Unit</label>
-        <select id="p3_pillsunit100">
-          <option>pills</option>
-          <option>sachets</option>
-          <option>tube</option>
-          <option>injection</option>
-          <option>vial</option>
-          <option>ampouls</option>
-          <option>capsule</option>
-        </select>
-      </div>
-    </div>
-    <div class="row-4">
-      <div>
-        <label>Price Amount</label>
-        <input id="p3_priceamt100" placeholder="85" />
-      </div>
-      <div>
-        <label>Currency</label>
-        <select id="p3_pricecur100">
-          <option>USD</option>
-          <option>EUR</option>
-          <option>GBP</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-      <div>
-        <label>Alt Amount</label>
-        <input id="p3_altamt100" placeholder="64" />
-      </div>
-      <div>
-        <label>Alt Currency</label>
-        <select id="p3_altcur100">
-          <option>GBP</option>
-          <option>USD</option>
-          <option>EUR</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
-          <option>CHF</option>
-          <option>ZAR</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="buttons">
-    <button onclick="generateQuotation()">Generate Quotation</button>
-    <button onclick="copyOutput()">Copy to Clipboard</button>
-  </div>
-
-  <div class="section-title">Generated Quotation</div>
-  <textarea id="output" readonly placeholder="Your quotation will appear here..."></textarea>
 
   <script>
     /* ========= GOOGLE SHEETS INTEGRATION ========= */
 
-    // Your Google Apps Script Web App URL
+    // Your Google Apps Script Web App URL (already set)
     const PRODUCTS_API_URL = "https://script.google.com/macros/s/AKfycbwu0gU8YXxDueXl7HpdyNnwZYXIxz0EmGdxvihBqInlRTY9vulKwEozkAB2vRrsLcjtLg/exec";
 
     let ONLINE_PRODUCTS = [];
+    let QUOTE_PRODUCTS = []; // dynamic array of products in this quote
 
     async function loadProducts() {
       try {
         const res = await fetch(PRODUCTS_API_URL);
         const json = await res.json();
         ONLINE_PRODUCTS = json.products || [];
-        fillProductDropdowns();
+        fillPresetDropdown();
       } catch (err) {
         console.error("Error loading products", err);
-        alert("Could not load online products. Please check your API URL or Apps Script.");
+        alert("Could not load online products. Please check your Apps Script deployment.");
+        const sel = document.getElementById("product_preset");
+        if (sel) {
+          sel.innerHTML = "";
+          const opt = document.createElement("option");
+          opt.value = "";
+          opt.textContent = "-- Failed to load products --";
+          sel.appendChild(opt);
+        }
       }
     }
 
-    function fillProductDropdowns() {
-      const ids = ["p1_product", "p2_product", "p3_product"];
+    function fillPresetDropdown() {
+      const sel = document.getElementById("product_preset");
+      if (!sel) return;
 
-      ids.forEach(id => {
-        const sel = document.getElementById(id);
-        if (!sel) return;
+      sel.innerHTML = "";
 
-        sel.innerHTML = "";
+      const defOpt = document.createElement("option");
+      defOpt.value = "";
+      defOpt.textContent = "-- Select Product Preset --";
+      sel.appendChild(defOpt);
 
-        const defOpt = document.createElement("option");
-        defOpt.value = "";
-        defOpt.textContent = "-- Select Product --";
-        sel.appendChild(defOpt);
-
-        ONLINE_PRODUCTS.forEach(p => {
-          const opt = document.createElement("option");
-          opt.value = p.product_key;
-          opt.textContent = `${p.name || ""} ${p.power || ""} ${p.form || ""}`;
-          sel.appendChild(opt);
-        });
-
-        const customOpt = document.createElement("option");
-        customOpt.value = "CUSTOM";
-        customOpt.textContent = "Custom (manual entry)";
-        sel.appendChild(customOpt);
+      ONLINE_PRODUCTS.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.product_key;
+        opt.textContent = `${p.name || ""} ${p.power || ""} ${p.form || ""}`;
+        sel.appendChild(opt);
       });
+
+      const customOpt = document.createElement("option");
+      customOpt.value = "CUSTOM";
+      customOpt.textContent = "Custom (manual entry)";
+      sel.appendChild(customOpt);
     }
 
-    function onProductChange(prefix) {
-      const sel = document.getElementById(prefix + "_product");
+    function onPresetChange() {
+      const sel = document.getElementById("product_preset");
       const key = sel.value;
-
-      if (key === "CUSTOM") {
+      if (!key || key === "CUSTOM") {
         return;
       }
 
       const prod = ONLINE_PRODUCTS.find(p => p.product_key === key);
       if (!prod) return;
 
-      const nameInput  = document.getElementById(prefix + "_name");
-      const powerInput = document.getElementById(prefix + "_power");
-      const formSelect = document.getElementById(prefix + "_form");
-
-      if (nameInput)  nameInput.value  = prod.name || "";
-      if (powerInput) powerInput.value = prod.power || "";
-      if (formSelect && prod.form) {
+      // Fill basic fields
+      document.getElementById("prod_name").value  = prod.name  || "";
+      document.getElementById("prod_power").value = prod.power || "";
+      const formSelect = document.getElementById("prod_form");
+      if (prod.form && formSelect) {
         formSelect.value = prod.form;
       }
 
-      function setLine(lineIndex, qField, unitField, pillsQtyField, pillsUnitField) {
+      // Helper to set line fields from sheet columns
+      function setLine(lineIndex, prefix) {
         const qtyKey       = "qty" + lineIndex;
         const unitKey      = "unit" + lineIndex;
         const pillsQtyKey  = "pillsqty" + lineIndex;
         const pillsUnitKey = "pillsunit" + lineIndex;
 
-        const qInput        = document.getElementById(prefix + "_" + qField);
-        const unitInput     = document.getElementById(prefix + "_" + unitField);
-        const pillsQtyInput = document.getElementById(prefix + "_" + pillsQtyField);
-        const pillsUnitInput= document.getElementById(prefix + "_" + pillsUnitField);
+        document.getElementById(prefix + "_qty").value       = prod[qtyKey] || "";
+        const unitSel = document.getElementById(prefix + "_unit");
+        if (prod[unitKey] && unitSel) unitSel.value = prod[unitKey];
 
-        if (qInput)        qInput.value        = prod[qtyKey] || "";
-        if (unitInput && prod[unitKey])       unitInput.value     = prod[unitKey];
-        if (pillsQtyInput) pillsQtyInput.value = prod[pillsQtyKey] || "";
-        if (pillsUnitInput && prod[pillsUnitKey]) pillsUnitInput.value = prod[pillsUnitKey];
+        document.getElementById(prefix + "_pillsqty").value  = prod[pillsQtyKey] || "";
+        const pillsUnitSel = document.getElementById(prefix + "_pillsunit");
+        if (prod[pillsUnitKey] && pillsUnitSel) pillsUnitSel.value = prod[pillsUnitKey];
       }
 
-      setLine(1, "q10",  "unit10",  "pillsqty10",  "pillsunit10");
-      setLine(2, "q50",  "unit50",  "pillsqty50",  "pillsunit50");
-      setLine(3, "q100", "unit100", "pillsqty100", "pillsunit100");
+      setLine(1, "l1");
+      setLine(2, "l2");
+      setLine(3, "l3");
+    }
+
+    /* ========= PRODUCT FORM HANDLING ========= */
+
+    function readLineFromForm(prefix) {
+      const qty       = document.getElementById(prefix + "_qty").value.trim();
+      const unit      = document.getElementById(prefix + "_unit").value.trim();
+      const pillsQty  = document.getElementById(prefix + "_pillsqty").value.trim();
+      const pillsUnit = document.getElementById(prefix + "_pillsunit").value.trim();
+      const priceAmt  = document.getElementById(prefix + "_priceamt").value.trim();
+      const priceCur  = document.getElementById(prefix + "_pricecur").value.trim();
+      const altAmt    = document.getElementById(prefix + "_altamt").value.trim();
+      const altCur    = document.getElementById(prefix + "_altcur").value.trim();
+
+      // If completely empty (no qty and no price), skip this line
+      const isEmpty = !qty && !unit && !pillsQty && !pillsUnit && !priceAmt && !priceCur && !altAmt && !altCur;
+      if (isEmpty) return null;
+
+      // Require at least qty, unit, main price & currency
+      if (!qty || !unit || !priceAmt || !priceCur) {
+        return { error: "Missing fields", qty, unit, priceAmt, priceCur };
+      }
+
+      return {
+        qty,
+        unit,
+        pillsQty,
+        pillsUnit,
+        priceAmt,
+        priceCur,
+        altAmt,
+        altCur
+      };
+    }
+
+    function addProductToQuote() {
+      const name  = document.getElementById("prod_name").value.trim();
+      const power = document.getElementById("prod_power").value.trim();
+      const form  = document.getElementById("prod_form").value.trim();
+
+      if (!name) {
+        alert("Please enter Product Name.");
+        return;
+      }
+
+      const line1 = readLineFromForm("l1");
+      const line2 = readLineFromForm("l2");
+      const line3 = readLineFromForm("l3");
+
+      const lines = [];
+      for (const line of [line1, line2, line3]) {
+        if (!line) continue;
+        if (line.error) {
+          alert("Each filled line must have Qty, Unit, Price Amount and Currency.");
+          return;
+        }
+        lines.push(line);
+      }
+
+      if (lines.length === 0) {
+        alert("Please fill at least one line with Qty, Unit, Price and Currency.");
+        return;
+      }
+
+      const product = {
+        id: Date.now() + Math.random(),
+        name,
+        power,
+        form,
+        lines
+      };
+
+      QUOTE_PRODUCTS.push(product);
+      clearProductForm();
+      renderQuoteProducts();
+    }
+
+    function clearProductForm() {
+      document.getElementById("product_preset").value = "";
+      document.getElementById("prod_name").value = "";
+      document.getElementById("prod_power").value = "";
+      document.getElementById("prod_form").value = "Tablets";
+
+      ["l1", "l2", "l3"].forEach(prefix => {
+        document.getElementById(prefix + "_qty").value = "";
+        document.getElementById(prefix + "_unit").value = "packs";
+        document.getElementById(prefix + "_pillsqty").value = "";
+        document.getElementById(prefix + "_pillsunit").value = "pills";
+        document.getElementById(prefix + "_priceamt").value = "";
+        document.getElementById(prefix + "_pricecur").value = "USD";
+        document.getElementById(prefix + "_altamt").value = "";
+        document.getElementById(prefix + "_altcur").value = "GBP";
+      });
+    }
+
+    function renderQuoteProducts() {
+      const container = document.getElementById("quoteProducts");
+      if (!QUOTE_PRODUCTS.length) {
+        container.innerHTML = "No products added yet. Fill the form above and click “Add Product to Quote”.";
+        return;
+      }
+
+      let html = "";
+      QUOTE_PRODUCTS.forEach((p, index) => {
+        let linesText = "";
+        p.lines.forEach(line => {
+          let row = `${line.qty} ${line.unit}`;
+          if (line.pillsQty || line.pillsUnit) {
+            row += " (";
+            if (line.pillsQty) row += line.pillsQty;
+            if (line.pillsQty && line.pillsUnit) row += " ";
+            if (line.pillsUnit) row += line.pillsUnit;
+            row += ")";
+          }
+          row += `= ${line.priceAmt} ${line.priceCur}`;
+          if (line.altAmt && line.altCur) {
+            row += ` (${line.altAmt} ${line.altCur})`;
+          }
+          linesText += row + "\n";
+        });
+
+        html += `
+          <div class="product-card">
+            <div class="product-card-header">
+              <div class="product-card-title">
+                Product- ${escapeHtml(p.name)}${p.power ? " " + escapeHtml(p.power) : ""}${p.form ? " " + escapeHtml(p.form) : ""}
+              </div>
+              <div style="font-size:11px;color:#777;">#${index + 1}</div>
+            </div>
+            <div class="product-card-lines">${escapeHtml(linesText)}</div>
+            <div class="product-card-buttons">
+              <button type="button" onclick="editProduct(${index})">Edit</button>
+              <button type="button" class="danger" onclick="removeProduct(${index})">Remove</button>
+              <button type="button" onclick="moveProductUp(${index})" ${index === 0 ? "disabled" : ""}>Move Up</button>
+              <button type="button" onclick="moveProductDown(${index})" ${index === QUOTE_PRODUCTS.length - 1 ? "disabled" : ""}>Move Down</button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function editProduct(index) {
+      const p = QUOTE_PRODUCTS[index];
+      if (!p) return;
+
+      // Load into form
+      document.getElementById("prod_name").value = p.name;
+      document.getElementById("prod_power").value = p.power || "";
+      document.getElementById("prod_form").value = p.form || "Tablets";
+      document.getElementById("product_preset").value = ""; // reset preset
+
+      const prefixes = ["l1", "l2", "l3"];
+      prefixes.forEach((prefix, i) => {
+        const line = p.lines[i];
+        if (!line) {
+          // Clear unused lines
+          document.getElementById(prefix + "_qty").value = "";
+          document.getElementById(prefix + "_unit").value = "packs";
+          document.getElementById(prefix + "_pillsqty").value = "";
+          document.getElementById(prefix + "_pillsunit").value = "pills";
+          document.getElementById(prefix + "_priceamt").value = "";
+          document.getElementById(prefix + "_pricecur").value = "USD";
+          document.getElementById(prefix + "_altamt").value = "";
+          document.getElementById(prefix + "_altcur").value = "GBP";
+        } else {
+          document.getElementById(prefix + "_qty").value       = line.qty || "";
+          document.getElementById(prefix + "_unit").value      = line.unit || "packs";
+          document.getElementById(prefix + "_pillsqty").value  = line.pillsQty || "";
+          document.getElementById(prefix + "_pillsunit").value = line.pillsUnit || "pills";
+          document.getElementById(prefix + "_priceamt").value  = line.priceAmt || "";
+          document.getElementById(prefix + "_pricecur").value  = line.priceCur || "USD";
+          document.getElementById(prefix + "_altamt").value    = line.altAmt || "";
+          document.getElementById(prefix + "_altcur").value    = line.altCur || "GBP";
+        }
+      });
+
+      // Remove from list so re-adding will replace
+      QUOTE_PRODUCTS.splice(index, 1);
+      renderQuoteProducts();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function removeProduct(index) {
+      QUOTE_PRODUCTS.splice(index, 1);
+      renderQuoteProducts();
+    }
+
+    function moveProductUp(index) {
+      if (index <= 0) return;
+      const tmp = QUOTE_PRODUCTS[index - 1];
+      QUOTE_PRODUCTS[index - 1] = QUOTE_PRODUCTS[index];
+      QUOTE_PRODUCTS[index] = tmp;
+      renderQuoteProducts();
+    }
+
+    function moveProductDown(index) {
+      if (index >= QUOTE_PRODUCTS.length - 1) return;
+      const tmp = QUOTE_PRODUCTS[index + 1];
+      QUOTE_PRODUCTS[index + 1] = QUOTE_PRODUCTS[index];
+      QUOTE_PRODUCTS[index] = tmp;
+      renderQuoteProducts();
     }
 
     /* ========= QUOTATION GENERATION ========= */
 
-    function buildProductBlock(prefix) {
-      const enabled = document.getElementById(prefix + "_enabled").checked;
-      if (!enabled) return "";
-
-      const name  = document.getElementById(prefix + "_name").value.trim();
-      const power = document.getElementById(prefix + "_power").value.trim();
-      const form  = document.getElementById(prefix + "_form").value.trim();
-
-      if (!name) return "";
-
+    function buildProductText(p) {
       let block = "";
-      block += "Product- " + name;
-      if (power) block += " " + power;
-      if (form)  block += " " + form;
+      block += "Product- " + p.name;
+      if (p.power) block += " " + p.power;
+      if (p.form)  block += " " + p.form;
       block += "\n";
 
-      function addRow(qId, unitId, pillsQtyId, pillsUnitId,
-                      priceAmtId, priceCurId, altAmtId, altCurId) {
-        const q         = document.getElementById(qId).value.trim();
-        const unit      = document.getElementById(unitId).value.trim();
-        const pillsQty  = document.getElementById(pillsQtyId).value.trim();
-        const pillsUnit = document.getElementById(pillsUnitId).value.trim();
-        const priceAmt  = document.getElementById(priceAmtId).value.trim();
-        const priceCur  = document.getElementById(priceCurId).value.trim();
-        const altAmt    = document.getElementById(altAmtId).value.trim();
-        const altCur    = document.getElementById(altCurId).value.trim();
-
-        if (!q || !unit || !priceAmt || !priceCur) return "";
-
-        let line = q + " " + unit;
-
-        if (pillsQty || pillsUnit) {
-          line += " (";
-          if (pillsQty) line += pillsQty;
-          if (pillsQty && pillsUnit) line += " ";
-          if (pillsUnit) line += pillsUnit;
-          line += ")";
+      p.lines.forEach(line => {
+        let row = `${line.qty} ${line.unit}`;
+        if (line.pillsQty || line.pillsUnit) {
+          row += " (";
+          if (line.pillsQty) row += line.pillsQty;
+          if (line.pillsQty && line.pillsUnit) row += " ";
+          if (line.pillsUnit) row += line.pillsUnit;
+          row += ")";
         }
-
-        line += "= " + priceAmt + " " + priceCur;
-
-        if (altAmt && altCur) {
-          line += " (" + altAmt + " " + altCur + ")";
+        row += `= ${line.priceAmt} ${line.priceCur}`;
+        if (line.altAmt && line.altCur) {
+          row += ` (${line.altAmt} ${line.altCur})`;
         }
-
-        return line + "\n";
-      }
-
-      block += addRow(
-        prefix + "_q10", prefix + "_unit10", prefix + "_pillsqty10", prefix + "_pillsunit10",
-        prefix + "_priceamt10", prefix + "_pricecur10", prefix + "_altamt10", prefix + "_altcur10"
-      );
-      block += addRow(
-        prefix + "_q50", prefix + "_unit50", prefix + "_pillsqty50", prefix + "_pillsunit50",
-        prefix + "_priceamt50", prefix + "_pricecur50", prefix + "_altamt50", prefix + "_altcur50"
-      );
-      block += addRow(
-        prefix + "_q100", prefix + "_unit100", prefix + "_pillsqty100", prefix + "_pillsunit100",
-        prefix + "_priceamt100", prefix + "_pricecur100", prefix + "_altamt100", prefix + "_altcur100"
-      );
+        block += row + "\n";
+      });
 
       block += "\n";
       return block;
     }
 
     function generateQuotation() {
+      if (!QUOTE_PRODUCTS.length) {
+        alert("Please add at least one product to the quotation.");
+        return;
+      }
+
       let text = "";
       text += "Hello,\n";
       text += "Greetings from Mediswift Medex\n\n";
       text += "We are leading exporter\n";
       text += "We got your enquiry regarding your requirement\n\n";
 
-      text += buildProductBlock("p1");
-      text += buildProductBlock("p2");
-      text += buildProductBlock("p3");
+      QUOTE_PRODUCTS.forEach(p => {
+        text += buildProductText(p);
+      });
 
       text += "-:We will provide you 100% doorstep delivery.\n\n";
       text += "-:Discounts / offers will be applied as the quantity increases.\n\n";
@@ -1175,7 +833,10 @@
       alert("Quotation copied!");
     }
 
-    window.addEventListener("load", loadProducts);
+    window.addEventListener("load", () => {
+      loadProducts();
+      clearProductForm();
+    });
   </script>
 </body>
 </html>
