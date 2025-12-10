@@ -163,7 +163,7 @@
       Select preset from Google Sheet → adjust → <b>Add Product to Quote</b> → repeat for all products.
     </div>
     <div class="fx-credit">
-      Rates by <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener noreferrer">ExchangeRate-API</a>
+      Rates by <a href="https://currencyfreaks.com" target="_blank" rel="noopener noreferrer">CurrencyFreaks</a>
     </div>
 
     <!-- PRODUCT FORM -->
@@ -217,10 +217,10 @@
       <div>
         <label for="l1_unit">Unit</label>
         <select id="l1_unit">
+          <option>blister</option>
+          <option>box</option>
           <option>packs</option>
           <option>strip</option>
-          <option>box</option>
-          <option>blister</option>
         </select>
       </div>
       <div>
@@ -230,13 +230,13 @@
       <div>
         <label for="l1_pillsunit">Pills Unit</label>
         <select id="l1_pillsunit">
+          <option>ampouls</option>
+          <option>capsule</option>
+          <option>injection</option>
           <option>pills</option>
           <option>sachets</option>
           <option>tube</option>
-          <option>injection</option>
           <option>vial</option>
-          <option>ampouls</option>
-          <option>capsule</option>
         </select>
       </div>
       <div>
@@ -246,22 +246,22 @@
       <div>
         <label for="l1_pricecur">Currency</label>
         <select id="l1_pricecur" onchange="onMainPriceChange('l1')">
-          <option>USD</option>
+          <option>AED</option>
+          <option>AUD</option>
+          <option>BHD</option>
+          <option>CAD</option>
+          <option>CHF</option>
+          <option>CNY</option>
           <option>EUR</option>
           <option>GBP</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
           <option>HKD</option>
-          <option>CHF</option>
+          <option>JPY</option>
+          <option>KWD</option>
+          <option>NZD</option>
+          <option>QAR</option>
+          <option>SAR</option>
+          <option>SGD</option>
+          <option>USD</option>
           <option>ZAR</option>
         </select>
       </div>
@@ -269,22 +269,22 @@
         <label for="l1_altcur">Alt Currency</label>
         <select id="l1_altcur" onchange="onAltCurrencyChange('l1')">
           <option></option>
-          <option>GBP</option>
-          <option>USD</option>
-          <option>EUR</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
           <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
+          <option>AUD</option>
           <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
+          <option>CAD</option>
           <option>CHF</option>
+          <option>CNY</option>
+          <option>EUR</option>
+          <option>GBP</option>
+          <option>HKD</option>
+          <option>JPY</option>
+          <option>KWD</option>
+          <option>NZD</option>
+          <option>QAR</option>
+          <option>SAR</option>
+          <option>SGD</option>
+          <option>USD</option>
           <option>ZAR</option>
         </select>
       </div>
@@ -304,10 +304,10 @@
       <div>
         <label for="l2_unit">Unit</label>
         <select id="l2_unit">
+          <option>blister</option>
+          <option>box</option>
           <option>packs</option>
           <option>strip</option>
-          <option>box</option>
-          <option>blister</option>
         </select>
       </div>
       <div>
@@ -317,13 +317,13 @@
       <div>
         <label for="l2_pillsunit">Pills Unit</label>
         <select id="l2_pillsunit">
+          <option>ampouls</option>
+          <option>capsule</option>
+          <option>injection</option>
           <option>pills</option>
           <option>sachets</option>
           <option>tube</option>
-          <option>injection</option>
           <option>vial</option>
-          <option>ampouls</option>
-          <option>capsule</option>
         </select>
       </div>
       <div>
@@ -333,22 +333,22 @@
       <div>
         <label for="l2_pricecur">Currency</label>
         <select id="l2_pricecur" onchange="onMainPriceChange('l2')">
-          <option>USD</option>
+          <option>AED</option>
+          <option>AUD</option>
+          <option>BHD</option>
+          <option>CAD</option>
+          <option>CHF</option>
+          <option>CNY</option>
           <option>EUR</option>
           <option>GBP</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
           <option>HKD</option>
-          <option>CHF</option>
+          <option>JPY</option>
+          <option>KWD</option>
+          <option>NZD</option>
+          <option>QAR</option>
+          <option>SAR</option>
+          <option>SGD</option>
+          <option>USD</option>
           <option>ZAR</option>
         </select>
       </div>
@@ -356,22 +356,22 @@
         <label for="l2_altcur">Alt Currency</label>
         <select id="l2_altcur" onchange="onAltCurrencyChange('l2')">
           <option></option>
-          <option>GBP</option>
-          <option>USD</option>
-          <option>EUR</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
           <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
+          <option>AUD</option>
           <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
+          <option>CAD</option>
           <option>CHF</option>
+          <option>CNY</option>
+          <option>EUR</option>
+          <option>GBP</option>
+          <option>HKD</option>
+          <option>JPY</option>
+          <option>KWD</option>
+          <option>NZD</option>
+          <option>QAR</option>
+          <option>SAR</option>
+          <option>SGD</option>
+          <option>USD</option>
           <option>ZAR</option>
         </select>
       </div>
@@ -391,10 +391,10 @@
       <div>
         <label for="l3_unit">Unit</label>
         <select id="l3_unit">
+          <option>blister</option>
+          <option>box</option>
           <option>packs</option>
           <option>strip</option>
-          <option>box</option>
-          <option>blister</option>
         </select>
       </div>
       <div>
@@ -404,13 +404,13 @@
       <div>
         <label for="l3_pillsunit">Pills Unit</label>
         <select id="l3_pillsunit">
+          <option>ampouls</option>
+          <option>capsule</option>
+          <option>injection</option>
           <option>pills</option>
           <option>sachets</option>
           <option>tube</option>
-          <option>injection</option>
           <option>vial</option>
-          <option>ampouls</option>
-          <option>capsule</option>
         </select>
       </div>
       <div>
@@ -420,22 +420,22 @@
       <div>
         <label for="l3_pricecur">Currency</label>
         <select id="l3_pricecur" onchange="onMainPriceChange('l3')">
-          <option>USD</option>
+          <option>AED</option>
+          <option>AUD</option>
+          <option>BHD</option>
+          <option>CAD</option>
+          <option>CHF</option>
+          <option>CNY</option>
           <option>EUR</option>
           <option>GBP</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
-          <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
-          <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
           <option>HKD</option>
-          <option>CHF</option>
+          <option>JPY</option>
+          <option>KWD</option>
+          <option>NZD</option>
+          <option>QAR</option>
+          <option>SAR</option>
+          <option>SGD</option>
+          <option>USD</option>
           <option>ZAR</option>
         </select>
       </div>
@@ -443,22 +443,22 @@
         <label for="l3_altcur">Alt Currency</label>
         <select id="l3_altcur" onchange="onAltCurrencyChange('l3')">
           <option></option>
-          <option>GBP</option>
-          <option>USD</option>
-          <option>EUR</option>
-          <option>AUD</option>
-          <option>CAD</option>
-          <option>NZD</option>
-          <option>SGD</option>
           <option>AED</option>
-          <option>SAR</option>
-          <option>QAR</option>
-          <option>KWD</option>
+          <option>AUD</option>
           <option>BHD</option>
-          <option>JPY</option>
-          <option>CNY</option>
-          <option>HKD</option>
+          <option>CAD</option>
           <option>CHF</option>
+          <option>CNY</option>
+          <option>EUR</option>
+          <option>GBP</option>
+          <option>HKD</option>
+          <option>JPY</option>
+          <option>KWD</option>
+          <option>NZD</option>
+          <option>QAR</option>
+          <option>SAR</option>
+          <option>SGD</option>
+          <option>USD</option>
           <option>ZAR</option>
         </select>
       </div>
@@ -490,40 +490,53 @@
   </div>
 
   <script>
-    // Your Google Apps Script Web App URL
+    // Google Apps Script Web App URL
     const PRODUCTS_API_URL = "https://script.google.com/macros/s/AKfycbwu0gU8YXxDueXl7HpdyNnwZYXIxz0EmGdxvihBqInlRTY9vulKwEozkAB2vRrsLcjtLg/exec";
+
+    // CurrencyFreaks API key (yours)
+    const FX_API_KEY = "0979bb8cef154310a0d57817aa5d3080";
 
     let ONLINE_PRODUCTS = [];
     let QUOTE_PRODUCTS = [];
 
-    // FX cache for live conversion (base -> { target: rate })
-    const FX_CACHE = {};
+    // cache of all rates from CurrencyFreaks
+    let FX_RATES = null;
 
-    // Free, no-key FX API using ExchangeRate-API open endpoint
+    async function loadFxRates() {
+      if (FX_RATES) return;
+      const url = "https://api.currencyfreaks.com/v1/latest?apikey=" + encodeURIComponent(FX_API_KEY);
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        FX_RATES = data.rates || null;
+        if (!FX_RATES) {
+          console.error("No rates in response", data);
+        }
+      } catch (e) {
+        console.error("Error fetching FX rates", e);
+      }
+    }
+
+    // Convert base -> target using USD-based rates
     async function getFxRate(base, target) {
       base = String(base || "").toUpperCase();
       target = String(target || "").toUpperCase();
       if (!base || !target) return null;
       if (base === target) return 1;
-      if (FX_CACHE[base] && FX_CACHE[base][target]) {
-        return FX_CACHE[base][target];
+
+      if (!FX_RATES) {
+        await loadFxRates();
       }
-      const url = "https://open.er-api.com/v6/latest/" + encodeURIComponent(base);
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!data || data.result !== "success" || !data.rates || !data.rates[target]) {
-          console.error("FX API error:", data);
-          return null;
-        }
-        const rate = data.rates[target];
-        if (!FX_CACHE[base]) FX_CACHE[base] = {};
-        FX_CACHE[base][target] = rate;
-        return rate;
-      } catch (e) {
-        console.error("FX fetch error", e);
+      if (!FX_RATES) return null;
+
+      const rBase = parseFloat(FX_RATES[base]);
+      const rTarget = parseFloat(FX_RATES[target]);
+      if (!rBase || !rTarget) {
+        console.error("Missing rate for", base, target, FX_RATES);
         return null;
       }
+      // rate base->target = target_in_USD / base_in_USD
+      return rTarget / rBase;
     }
 
     function safeSetSelect(select, value) {
@@ -937,6 +950,8 @@
       loadProducts();
       clearProductForm();
       updateAltVisibility();
+      // Pre-load FX rates early
+      loadFxRates();
     });
   </script>
 </body>
