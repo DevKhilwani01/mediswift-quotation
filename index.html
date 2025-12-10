@@ -200,6 +200,24 @@
       </div>
     </div>
 
+    <!-- Brand / Composition (optional) -->
+    <div class="row-3">
+      <div>
+        <label style="font-weight: normal;">
+          <input type="checkbox" id="enable_brand" onchange="toggleBrand()" />
+          Include Brand Name
+        </label>
+        <input id="prod_brand" style="display:none;" />
+      </div>
+      <div>
+        <label style="font-weight: normal;">
+          <input type="checkbox" id="enable_comp" onchange="toggleComp()" />
+          Include Composition
+        </label>
+        <input id="prod_comp" style="display:none;" />
+      </div>
+    </div>
+
     <div class="small-note">
       <label style="font-weight: normal;">
         <input type="checkbox" id="enable_alt" checked onchange="updateAltVisibility()" />
@@ -499,18 +517,49 @@
     let ONLINE_PRODUCTS = [];
     let QUOTE_PRODUCTS = [];
 
-    // cache of all rates from CurrencyFreaks
+    // FX rate cache
     let FX_RATES = null;
+    const FX_CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
+    let FX_ERROR_SHOWN = false;
 
+    // Load FX rates with localStorage caching
     async function loadFxRates() {
-      if (FX_RATES) return;
+      try {
+        const storedRaw = localStorage.getItem("mediswift_fx_rates");
+        if (storedRaw) {
+          const stored = JSON.parse(storedRaw);
+          if (stored && stored.rates) {
+            FX_RATES = stored.rates;
+            const ts = stored.timestamp || 0;
+            const age = Date.now() - ts;
+            // If fresh enough, just use them
+            if (age < FX_CACHE_TTL_MS) {
+              return;
+            }
+            // If old, we'll still try to refresh below, but FX_RATES is already usable as fallback
+          }
+        }
+      } catch (e) {
+        console.warn("localStorage read error", e);
+      }
+
+      // Try to refresh from API
       const url = "https://api.currencyfreaks.com/v1/latest?apikey=" + encodeURIComponent(FX_API_KEY);
       try {
         const res = await fetch(url);
         const data = await res.json();
-        FX_RATES = data.rates || null;
-        if (!FX_RATES) {
-          console.error("No rates in response", data);
+        if (data && data.rates) {
+          FX_RATES = data.rates;
+          try {
+            localStorage.setItem("mediswift_fx_rates", JSON.stringify({
+              rates: FX_RATES,
+              timestamp: Date.now()
+            }));
+          } catch (e) {
+            console.warn("localStorage write error", e);
+          }
+        } else {
+          console.error("FX API response invalid", data);
         }
       } catch (e) {
         console.error("Error fetching FX rates", e);
@@ -527,7 +576,13 @@
       if (!FX_RATES) {
         await loadFxRates();
       }
-      if (!FX_RATES) return null;
+      if (!FX_RATES) {
+        if (!FX_ERROR_SHOWN) {
+          alert("Live currency rates are temporarily unavailable. Please try again later.");
+          FX_ERROR_SHOWN = true;
+        }
+        return null;
+      }
 
       const rBase = parseFloat(FX_RATES[base]);
       const rTarget = parseFloat(FX_RATES[target]);
@@ -593,6 +648,22 @@
       sel.appendChild(customOpt);
     }
 
+    function toggleBrand() {
+      const cb = document.getElementById("enable_brand");
+      const input = document.getElementById("prod_brand");
+      if (!cb || !input) return;
+      input.style.display = cb.checked ? "" : "none";
+      if (!cb.checked) input.value = "";
+    }
+
+    function toggleComp() {
+      const cb = document.getElementById("enable_comp");
+      const input = document.getElementById("prod_comp");
+      if (!cb || !input) return;
+      input.style.display = cb.checked ? "" : "none";
+      if (!cb.checked) input.value = "";
+    }
+
     function onPresetChange() {
       const sel = document.getElementById("product_preset");
       const key = sel.value;
@@ -606,6 +677,21 @@
 
       const formSelect = document.getElementById("prod_form");
       safeSetSelect(formSelect, prod.form);
+
+      // Brand & Composition (sheet headers: brand, composition)
+      const brandVal = prod.brand || prod.company || "";
+      const compVal  = prod.composition || prod.comp || "";
+
+      const brandCb = document.getElementById("enable_brand");
+      const compCb  = document.getElementById("enable_comp");
+
+      brandCb.checked = !!brandVal;
+      document.getElementById("prod_brand").value = brandVal;
+      toggleBrand();
+
+      compCb.checked = !!compVal;
+      document.getElementById("prod_comp").value = compVal;
+      toggleComp();
 
       function setLine(lineIndex, prefix) {
         const qtyKey       = "qty" + lineIndex;
@@ -676,6 +762,11 @@
       const power = document.getElementById("prod_power").value.trim();
       const form  = document.getElementById("prod_form").value.trim();
 
+      const brandEnabled = document.getElementById("enable_brand").checked;
+      const compEnabled  = document.getElementById("enable_comp").checked;
+      const brand        = brandEnabled ? document.getElementById("prod_brand").value.trim() : "";
+      const composition  = compEnabled  ? document.getElementById("prod_comp").value.trim() : "";
+
       if (!name) {
         alert("Please enter Product Name.");
         return;
@@ -705,6 +796,8 @@
         name,
         power,
         form,
+        brand,
+        composition,
         lines
       };
 
@@ -718,6 +811,15 @@
       document.getElementById("prod_name").value = "";
       document.getElementById("prod_power").value = "";
       document.getElementById("prod_form").value = "Tablets";
+
+      // Brand & Composition
+      document.getElementById("enable_brand").checked = false;
+      document.getElementById("prod_brand").value = "";
+      toggleBrand();
+
+      document.getElementById("enable_comp").checked = false;
+      document.getElementById("prod_comp").value = "";
+      toggleComp();
 
       ["l1","l2","l3"].forEach(prefix => {
         document.getElementById(prefix + "_qty").value = "";
@@ -741,6 +843,17 @@
       let html = "";
       QUOTE_PRODUCTS.forEach((p, index) => {
         let linesText = "";
+
+        if (p.brand) {
+          linesText += "COMPANY:- " + p.brand + "\n";
+        }
+        if (p.composition) {
+          linesText += "COMP:- " + p.composition + "\n";
+        }
+        if (p.brand || p.composition) {
+          linesText += "\n";
+        }
+
         p.lines.forEach(line => {
           let row = `${line.qty} ${line.unit}`;
           if (line.pillsQty || line.pillsUnit) {
@@ -794,6 +907,18 @@
       document.getElementById("prod_power").value = p.power || "";
       document.getElementById("prod_form").value = p.form || "Tablets";
       document.getElementById("product_preset").value = "";
+
+      // Brand / Composition
+      const brandCb = document.getElementById("enable_brand");
+      const compCb  = document.getElementById("enable_comp");
+
+      brandCb.checked = !!p.brand;
+      document.getElementById("prod_brand").value = p.brand || "";
+      toggleBrand();
+
+      compCb.checked = !!p.composition;
+      document.getElementById("prod_comp").value = p.composition || "";
+      toggleComp();
 
       const prefixes = ["l1","l2","l3"];
       prefixes.forEach((prefix, i) => {
@@ -851,6 +976,16 @@
       if (p.power) block += " " + p.power;
       if (p.form)  block += " " + p.form;
       block += "\n";
+
+      if (p.brand) {
+        block += "COMPANY:- " + p.brand + "\n";
+      }
+      if (p.composition) {
+        block += "COMP:- " + p.composition + "\n";
+      }
+      if (p.brand || p.composition) {
+        block += "\n";
+      }
 
       p.lines.forEach(line => {
         let row = `${line.qty} ${line.unit}`;
@@ -950,7 +1085,7 @@
       loadProducts();
       clearProductForm();
       updateAltVisibility();
-      // Pre-load FX rates early
+      // Pre-load FX rates early (will use cache if available)
       loadFxRates();
     });
   </script>
