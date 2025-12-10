@@ -160,7 +160,7 @@
   <div class="app">
     <h1>Mediswift Quotation Generator</h1>
     <div class="subtitle">
-      Select preset from Google Sheet → adjust → <b>Add Product to Quote</b> → repeat for all products.
+      Select preset from Google Sheet → adjust → <b>Add Product to Quote</b> / <b>Save Product to Sheet</b>.
     </div>
     <div class="fx-credit">
       Rates by <a href="https://currencyfreaks.com" target="_blank" rel="noopener noreferrer">CurrencyFreaks</a>
@@ -488,6 +488,7 @@
 
     <div class="buttons">
       <button class="primary" type="button" onclick="addProductToQuote()">Add Product to Quote</button>
+      <button type="button" onclick="saveProductToSheet()">Save Product to Sheet</button>
       <button class="secondary" type="button" onclick="clearProductForm()">Clear Form</button>
     </div>
 
@@ -514,7 +515,7 @@
     // CurrencyFreaks API key (yours)
     const FX_API_KEY = "0979bb8cef154310a0d57817aa5d3080";
 
-    // Default base rates (1 USD = X currency), grabbed from themoneyconverter.com on 2025-12-10
+    // Default base rates (1 USD = X currency)
     const FX_RATES_DEFAULT = {
       AED: 3.67135,
       AUD: 1.50644,
@@ -538,7 +539,7 @@
     let ONLINE_PRODUCTS = [];
     let QUOTE_PRODUCTS = [];
 
-    // FX rate cache (starts with defaults, then may be overridden by localStorage or API)
+    // FX rate cache
     let FX_RATES = { ...FX_RATES_DEFAULT };
     const FX_CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
     let FX_ERROR_SHOWN = false;
@@ -553,18 +554,15 @@
             FX_RATES = stored.rates;
             const ts = stored.timestamp || 0;
             const age = Date.now() - ts;
-            // If less than 4h old, just use them
             if (age < FX_CACHE_TTL_MS) {
               return;
             }
-            // If old, we'll still try to refresh from API, but FX_RATES is already usable as fallback
           }
         }
       } catch (e) {
         console.warn("localStorage read error", e);
       }
 
-      // Try to refresh from CurrencyFreaks API
       const url = "https://api.currencyfreaks.com/v1/latest?apikey=" + encodeURIComponent(FX_API_KEY);
       try {
         const res = await fetch(url);
@@ -587,7 +585,6 @@
       }
     }
 
-    // Convert base -> target using USD-based rates
     async function getFxRate(base, target) {
       base = String(base || "").toUpperCase();
       target = String(target || "").toUpperCase();
@@ -598,7 +595,6 @@
         FX_RATES = { ...FX_RATES_DEFAULT };
       }
 
-      // ensure we have tried refreshing at least once
       if (!FX_RATES || !FX_RATES.USD) {
         await loadFxRates();
       }
@@ -613,7 +609,6 @@
         }
         return null;
       }
-      // rate base->target = target_in_USD / base_in_USD
       return rTarget / rBase;
     }
 
@@ -701,7 +696,6 @@
       const formSelect = document.getElementById("prod_form");
       safeSetSelect(formSelect, prod.form);
 
-      // Brand & Composition (sheet headers: brand, composition)
       const brandVal = prod.brand || prod.company || "";
       const compVal  = prod.composition || prod.comp || "";
 
@@ -781,6 +775,14 @@
     }
 
     function addProductToQuote() {
+      const product = buildProductFromForm();
+      if (!product) return;
+      QUOTE_PRODUCTS.push(product);
+      clearProductForm();
+      renderQuoteProducts();
+    }
+
+    function buildProductFromForm() {
       const name  = document.getElementById("prod_name").value.trim();
       const power = document.getElementById("prod_power").value.trim();
       const form  = document.getElementById("prod_form").value.trim();
@@ -792,7 +794,7 @@
 
       if (!name) {
         alert("Please enter Product Name.");
-        return;
+        return null;
       }
 
       const line1 = readLineFromForm("l1");
@@ -804,17 +806,17 @@
         if (!line) continue;
         if (line.error) {
           alert("Each filled line must have Qty, Unit, Price Amount and Currency.");
-          return;
+          return null;
         }
         lines.push(line);
       }
 
       if (lines.length === 0) {
         alert("Please fill at least one line with Qty, Unit, Price and Currency.");
-        return;
+        return null;
       }
 
-      const product = {
+      return {
         id: Date.now() + Math.random(),
         name,
         power,
@@ -823,10 +825,68 @@
         composition,
         lines
       };
+    }
 
-      QUOTE_PRODUCTS.push(product);
-      clearProductForm();
-      renderQuoteProducts();
+    async function saveProductToSheet() {
+      const product = buildProductFromForm();
+      if (!product) return;
+
+      // Check duplicate (same name+power+form+brand+composition)
+      const newSig = [
+        product.name,
+        product.power,
+        product.form,
+        product.brand || "",
+        product.composition || ""
+      ].map(s => s.trim().toLowerCase()).join("|");
+
+      const duplicate = ONLINE_PRODUCTS.some(p => {
+        const sig = [
+          p.name || "",
+          p.power || "",
+          p.form || "",
+          p.brand || p.company || "",
+          p.composition || p.comp || ""
+        ].map(s => String(s).trim().toLowerCase()).join("|");
+        return sig === newSig;
+      });
+
+      if (duplicate) {
+        alert("This product already exists in the sheet (same name, power, form, brand & composition). Not saving.");
+        return;
+      }
+
+      // Build payload for Apps Script
+      const payload = {
+        action: "saveProduct",
+        name: product.name,
+        power: product.power,
+        form: product.form,
+        brand: product.brand,
+        composition: product.composition,
+        lines: product.lines
+      };
+
+      try {
+        const res = await fetch(PRODUCTS_API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert("Product saved to sheet with ID: " + json.product_key);
+          // Refresh product list
+          await loadProducts();
+        } else {
+          alert("Error saving product: " + (json.error || "Unknown error"));
+        }
+      } catch (e) {
+        console.error("Error posting to Apps Script", e);
+        alert("Error saving product. Check console for details.");
+      }
     }
 
     function clearProductForm() {
@@ -835,7 +895,6 @@
       document.getElementById("prod_power").value = "";
       document.getElementById("prod_form").value = "Tablets";
 
-      // Brand & Composition
       document.getElementById("enable_brand").checked = false;
       document.getElementById("prod_brand").value = "";
       toggleBrand();
@@ -931,7 +990,6 @@
       document.getElementById("prod_form").value = p.form || "Tablets";
       document.getElementById("product_preset").value = "";
 
-      // Brand / Composition
       const brandCb = document.getElementById("enable_brand");
       const compCb  = document.getElementById("enable_comp");
 
@@ -1092,7 +1150,7 @@
       if (!rate) return;
 
       const converted = amount * rate;
-      altAmtEl.value = String(Math.round(converted)); // rounded, no decimals
+      altAmtEl.value = String(Math.round(converted));
     }
 
     function onMainPriceChange(prefix) {
@@ -1108,7 +1166,6 @@
       loadProducts();
       clearProductForm();
       updateAltVisibility();
-      // Pre-load FX rates early (will use defaults + cache if available)
       loadFxRates();
     });
   </script>
