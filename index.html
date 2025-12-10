@@ -153,7 +153,7 @@
       Select preset from Google Sheet → adjust → <b>Add Product to Quote</b> → repeat for all products.
     </div>
 
-    <!-- PRODUCT FORM (single, reusable) -->
+    <!-- PRODUCT FORM -->
     <div class="section-title">Product Details</div>
 
     <label for="product_preset">Select Product Preset (from Google Sheet)</label>
@@ -167,11 +167,11 @@
     <div class="row-3">
       <div>
         <label for="prod_name">Product Name</label>
-        <input id="prod_name" placeholder="Zopiclone" />
+        <input id="prod_name" />
       </div>
       <div>
         <label for="prod_power">Power</label>
-        <input id="prod_power" placeholder="7.5 mg" />
+        <input id="prod_power" />
       </div>
       <div>
         <label for="prod_form">Dosage Form</label>
@@ -181,16 +181,25 @@
           <option>Injection</option>
           <option>Tube</option>
           <option>Inhaler</option>
+          <option>Cream</option>
+          <option>Gel</option>
         </select>
       </div>
     </div>
 
+    <div class="small-note">
+      <label style="font-weight: normal;">
+        <input type="checkbox" id="enable_alt" checked onchange="updateAltVisibility()" />
+        Enable alternate currency (for non-US clients)
+      </label>
+    </div>
+
     <!-- Line 1 -->
-    <div class="small-note"><b>Line 1</b> (e.g. 10 packs (100 pills) = 10 USD (8 GBP))</div>
+    <div class="small-note"><b>Line 1</b></div>
     <div class="row-8">
       <div>
         <label for="l1_qty">Qty</label>
-        <input id="l1_qty" placeholder="10" />
+        <input id="l1_qty" />
       </div>
       <div>
         <label for="l1_unit">Unit</label>
@@ -198,12 +207,12 @@
           <option>packs</option>
           <option>strip</option>
           <option>box</option>
-          <option>sachets</option>
+          <option>blister</option>
         </select>
       </div>
       <div>
         <label for="l1_pillsqty">Pills Qty</label>
-        <input id="l1_pillsqty" placeholder="100" />
+        <input id="l1_pillsqty" />
       </div>
       <div>
         <label for="l1_pillsunit">Pills Unit</label>
@@ -219,11 +228,11 @@
       </div>
       <div>
         <label for="l1_priceamt">Price Amt</label>
-        <input id="l1_priceamt" placeholder="10" />
+        <input id="l1_priceamt" oninput="onMainPriceChange('l1')" />
       </div>
       <div>
         <label for="l1_pricecur">Currency</label>
-        <select id="l1_pricecur">
+        <select id="l1_pricecur" onchange="onMainPriceChange('l1')">
           <option>USD</option>
           <option>EUR</option>
           <option>GBP</option>
@@ -243,13 +252,10 @@
           <option>ZAR</option>
         </select>
       </div>
-      <div>
-        <label for="l1_altamt">Alt Amt</label>
-        <input id="l1_altamt" placeholder="8" />
-      </div>
-      <div>
+      <div class="alt-field">
         <label for="l1_altcur">Alt Currency</label>
-        <select id="l1_altcur">
+        <select id="l1_altcur" onchange="onAltCurrencyChange('l1')">
+          <option></option>
           <option>GBP</option>
           <option>USD</option>
           <option>EUR</option>
@@ -268,15 +274,19 @@
           <option>CHF</option>
           <option>ZAR</option>
         </select>
+      </div>
+      <div class="alt-field">
+        <label for="l1_altamt">Alt Amt</label>
+        <input id="l1_altamt" />
       </div>
     </div>
 
     <!-- Line 2 -->
-    <div class="small-note"><b>Line 2</b> (e.g. 50 packs (500 pills) = 45 USD (34 GBP))</div>
+    <div class="small-note"><b>Line 2</b></div>
     <div class="row-8">
       <div>
         <label for="l2_qty">Qty</label>
-        <input id="l2_qty" placeholder="50" />
+        <input id="l2_qty" />
       </div>
       <div>
         <label for="l2_unit">Unit</label>
@@ -284,12 +294,12 @@
           <option>packs</option>
           <option>strip</option>
           <option>box</option>
-          <option>sachets</option>
+          <option>blister</option>
         </select>
       </div>
       <div>
         <label for="l2_pillsqty">Pills Qty</label>
-        <input id="l2_pillsqty" placeholder="500" />
+        <input id="l2_pillsqty" />
       </div>
       <div>
         <label for="l2_pillsunit">Pills Unit</label>
@@ -305,11 +315,11 @@
       </div>
       <div>
         <label for="l2_priceamt">Price Amt</label>
-        <input id="l2_priceamt" placeholder="45" />
+        <input id="l2_priceamt" oninput="onMainPriceChange('l2')" />
       </div>
       <div>
         <label for="l2_pricecur">Currency</label>
-        <select id="l2_pricecur">
+        <select id="l2_pricecur" onchange="onMainPriceChange('l2')">
           <option>USD</option>
           <option>EUR</option>
           <option>GBP</option>
@@ -329,13 +339,10 @@
           <option>ZAR</option>
         </select>
       </div>
-      <div>
-        <label for="l2_altamt">Alt Amt</label>
-        <input id="l2_altamt" placeholder="34" />
-      </div>
-      <div>
+      <div class="alt-field">
         <label for="l2_altcur">Alt Currency</label>
-        <select id="l2_altcur">
+        <select id="l2_altcur" onchange="onAltCurrencyChange('l2')">
+          <option></option>
           <option>GBP</option>
           <option>USD</option>
           <option>EUR</option>
@@ -354,15 +361,19 @@
           <option>CHF</option>
           <option>ZAR</option>
         </select>
+      </div>
+      <div class="alt-field">
+        <label for="l2_altamt">Alt Amt</label>
+        <input id="l2_altamt" />
       </div>
     </div>
 
     <!-- Line 3 -->
-    <div class="small-note"><b>Line 3</b> (e.g. 100 packs (1000 pills) = 75 USD (56 GBP))</div>
+    <div class="small-note"><b>Line 3</b></div>
     <div class="row-8">
       <div>
         <label for="l3_qty">Qty</label>
-        <input id="l3_qty" placeholder="100" />
+        <input id="l3_qty" />
       </div>
       <div>
         <label for="l3_unit">Unit</label>
@@ -370,12 +381,12 @@
           <option>packs</option>
           <option>strip</option>
           <option>box</option>
-          <option>sachets</option>
+          <option>blister</option>
         </select>
       </div>
       <div>
         <label for="l3_pillsqty">Pills Qty</label>
-        <input id="l3_pillsqty" placeholder="1000" />
+        <input id="l3_pillsqty" />
       </div>
       <div>
         <label for="l3_pillsunit">Pills Unit</label>
@@ -391,11 +402,11 @@
       </div>
       <div>
         <label for="l3_priceamt">Price Amt</label>
-        <input id="l3_priceamt" placeholder="75" />
+        <input id="l3_priceamt" oninput="onMainPriceChange('l3')" />
       </div>
       <div>
         <label for="l3_pricecur">Currency</label>
-        <select id="l3_pricecur">
+        <select id="l3_pricecur" onchange="onMainPriceChange('l3')">
           <option>USD</option>
           <option>EUR</option>
           <option>GBP</option>
@@ -415,13 +426,10 @@
           <option>ZAR</option>
         </select>
       </div>
-      <div>
-        <label for="l3_altamt">Alt Amt</label>
-        <input id="l3_altamt" placeholder="56" />
-      </div>
-      <div>
+      <div class="alt-field">
         <label for="l3_altcur">Alt Currency</label>
-        <select id="l3_altcur">
+        <select id="l3_altcur" onchange="onAltCurrencyChange('l3')">
+          <option></option>
           <option>GBP</option>
           <option>USD</option>
           <option>EUR</option>
@@ -440,6 +448,10 @@
           <option>CHF</option>
           <option>ZAR</option>
         </select>
+      </div>
+      <div class="alt-field">
+        <label for="l3_altamt">Alt Amt</label>
+        <input id="l3_altamt" />
       </div>
     </div>
 
@@ -448,29 +460,65 @@
       <button class="secondary" type="button" onclick="clearProductForm()">Clear Form</button>
     </div>
 
-    <!-- PRODUCTS ADDED TO THIS QUOTATION -->
+    <!-- PRODUCTS ADDED -->
     <div class="section-title">Products in this Quotation</div>
     <div id="quoteProducts" class="small-note">
       No products added yet. Fill the form above and click “Add Product to Quote”.
     </div>
 
-    <!-- GENERATE QUOTATION -->
+    <!-- GENERATE -->
     <div class="section-title">Generated Quotation</div>
     <div class="buttons">
       <button class="primary" type="button" onclick="generateQuotation()">Generate Quotation</button>
       <button type="button" onclick="copyOutput()">Copy to Clipboard</button>
     </div>
-    <textarea id="output" readonly placeholder="Your quotation will appear here..."></textarea>
+    <textarea id="output" readonly></textarea>
   </div>
 
   <script>
-    /* ========= GOOGLE SHEETS INTEGRATION ========= */
-
-    // Your Google Apps Script Web App URL (already set)
+    // Google Apps Script Web App URL
     const PRODUCTS_API_URL = "https://script.google.com/macros/s/AKfycbwu0gU8YXxDueXl7HpdyNnwZYXIxz0EmGdxvihBqInlRTY9vulKwEozkAB2vRrsLcjtLg/exec";
 
     let ONLINE_PRODUCTS = [];
-    let QUOTE_PRODUCTS = []; // dynamic array of products in this quote
+    let QUOTE_PRODUCTS = [];
+
+    // FX cache for live conversion
+    const FX_CACHE = {};
+
+    async function getFxRate(base, target) {
+      base = String(base || "").toUpperCase();
+      target = String(target || "").toUpperCase();
+      if (!base || !target) return null;
+      if (base === target) return 1;
+      if (FX_CACHE[base] && FX_CACHE[base][target]) {
+        return FX_CACHE[base][target];
+      }
+      const url = "https://api.exchangerate.host/latest?base=" +
+                  encodeURIComponent(base) +
+                  "&symbols=" + encodeURIComponent(target);
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const rate = data && data.rates && data.rates[target] ? data.rates[target] : null;
+        if (!FX_CACHE[base]) FX_CACHE[base] = {};
+        FX_CACHE[base][target] = rate || 1;
+        return FX_CACHE[base][target];
+      } catch (e) {
+        console.error("FX fetch error", e);
+        return null;
+      }
+    }
+
+    function safeSetSelect(select, value) {
+      if (!select || value == null) return;
+      const target = String(value).toLowerCase();
+      for (const opt of select.options) {
+        if (String(opt.value).toLowerCase() === target) {
+          select.value = opt.value;
+          return;
+        }
+      }
+    }
 
     async function loadProducts() {
       try {
@@ -497,7 +545,6 @@
       if (!sel) return;
 
       sel.innerHTML = "";
-
       const defOpt = document.createElement("option");
       defOpt.value = "";
       defOpt.textContent = "-- Select Product Preset --";
@@ -519,35 +566,32 @@
     function onPresetChange() {
       const sel = document.getElementById("product_preset");
       const key = sel.value;
-      if (!key || key === "CUSTOM") {
-        return;
-      }
+      if (!key || key === "CUSTOM") return;
 
       const prod = ONLINE_PRODUCTS.find(p => p.product_key === key);
       if (!prod) return;
 
-      // Fill basic fields
       document.getElementById("prod_name").value  = prod.name  || "";
       document.getElementById("prod_power").value = prod.power || "";
-      const formSelect = document.getElementById("prod_form");
-      if (prod.form && formSelect) {
-        formSelect.value = prod.form;
-      }
 
-      // Helper to set line fields from sheet columns
+      const formSelect = document.getElementById("prod_form");
+      safeSetSelect(formSelect, prod.form);
+
       function setLine(lineIndex, prefix) {
         const qtyKey       = "qty" + lineIndex;
         const unitKey      = "unit" + lineIndex;
         const pillsQtyKey  = "pillsqty" + lineIndex;
         const pillsUnitKey = "pillsunit" + lineIndex;
+        const priceKey     = "price" + lineIndex;
 
-        document.getElementById(prefix + "_qty").value       = prod[qtyKey] || "";
-        const unitSel = document.getElementById(prefix + "_unit");
-        if (prod[unitKey] && unitSel) unitSel.value = prod[unitKey];
+        document.getElementById(prefix + "_qty").value      = prod[qtyKey] || "";
+        safeSetSelect(document.getElementById(prefix + "_unit"),      prod[unitKey]);
+        document.getElementById(prefix + "_pillsqty").value = prod[pillsQtyKey] || "";
+        safeSetSelect(document.getElementById(prefix + "_pillsunit"), prod[pillsUnitKey]);
 
-        document.getElementById(prefix + "_pillsqty").value  = prod[pillsQtyKey] || "";
-        const pillsUnitSel = document.getElementById(prefix + "_pillsunit");
-        if (prod[pillsUnitKey] && pillsUnitSel) pillsUnitSel.value = prod[pillsUnitKey];
+        if (prod[priceKey] != null && prod[priceKey] !== "") {
+          document.getElementById(prefix + "_priceamt").value = prod[priceKey];
+        }
       }
 
       setLine(1, "l1");
@@ -555,7 +599,12 @@
       setLine(3, "l3");
     }
 
-    /* ========= PRODUCT FORM HANDLING ========= */
+    function updateAltVisibility() {
+      const enabled = document.getElementById("enable_alt").checked;
+      document.querySelectorAll(".alt-field").forEach(div => {
+        div.style.display = enabled ? "" : "none";
+      });
+    }
 
     function readLineFromForm(prefix) {
       const qty       = document.getElementById(prefix + "_qty").value.trim();
@@ -564,16 +613,20 @@
       const pillsUnit = document.getElementById(prefix + "_pillsunit").value.trim();
       const priceAmt  = document.getElementById(prefix + "_priceamt").value.trim();
       const priceCur  = document.getElementById(prefix + "_pricecur").value.trim();
-      const altAmt    = document.getElementById(prefix + "_altamt").value.trim();
-      const altCur    = document.getElementById(prefix + "_altcur").value.trim();
+      const altEnabled= document.getElementById("enable_alt").checked;
+      let  altCur     = "";
+      let  altAmt     = "";
 
-      // If completely empty (no qty and no price), skip this line
+      if (altEnabled) {
+        altCur = document.getElementById(prefix + "_altcur").value.trim();
+        altAmt = document.getElementById(prefix + "_altamt").value.trim();
+      }
+
       const isEmpty = !qty && !unit && !pillsQty && !pillsUnit && !priceAmt && !priceCur && !altAmt && !altCur;
       if (isEmpty) return null;
 
-      // Require at least qty, unit, main price & currency
       if (!qty || !unit || !priceAmt || !priceCur) {
-        return { error: "Missing fields", qty, unit, priceAmt, priceCur };
+        return { error: "Missing fields" };
       }
 
       return {
@@ -636,15 +689,15 @@
       document.getElementById("prod_power").value = "";
       document.getElementById("prod_form").value = "Tablets";
 
-      ["l1", "l2", "l3"].forEach(prefix => {
+      ["l1","l2","l3"].forEach(prefix => {
         document.getElementById(prefix + "_qty").value = "";
         document.getElementById(prefix + "_unit").value = "packs";
         document.getElementById(prefix + "_pillsqty").value = "";
         document.getElementById(prefix + "_pillsunit").value = "pills";
         document.getElementById(prefix + "_priceamt").value = "";
         document.getElementById(prefix + "_pricecur").value = "USD";
+        document.getElementById(prefix + "_altcur").value = "";
         document.getElementById(prefix + "_altamt").value = "";
-        document.getElementById(prefix + "_altcur").value = "GBP";
       });
     }
 
@@ -707,25 +760,23 @@
       const p = QUOTE_PRODUCTS[index];
       if (!p) return;
 
-      // Load into form
       document.getElementById("prod_name").value = p.name;
       document.getElementById("prod_power").value = p.power || "";
       document.getElementById("prod_form").value = p.form || "Tablets";
-      document.getElementById("product_preset").value = ""; // reset preset
+      document.getElementById("product_preset").value = "";
 
-      const prefixes = ["l1", "l2", "l3"];
+      const prefixes = ["l1","l2","l3"];
       prefixes.forEach((prefix, i) => {
         const line = p.lines[i];
         if (!line) {
-          // Clear unused lines
           document.getElementById(prefix + "_qty").value = "";
           document.getElementById(prefix + "_unit").value = "packs";
           document.getElementById(prefix + "_pillsqty").value = "";
           document.getElementById(prefix + "_pillsunit").value = "pills";
           document.getElementById(prefix + "_priceamt").value = "";
           document.getElementById(prefix + "_pricecur").value = "USD";
+          document.getElementById(prefix + "_altcur").value = "";
           document.getElementById(prefix + "_altamt").value = "";
-          document.getElementById(prefix + "_altcur").value = "GBP";
         } else {
           document.getElementById(prefix + "_qty").value       = line.qty || "";
           document.getElementById(prefix + "_unit").value      = line.unit || "packs";
@@ -733,12 +784,11 @@
           document.getElementById(prefix + "_pillsunit").value = line.pillsUnit || "pills";
           document.getElementById(prefix + "_priceamt").value  = line.priceAmt || "";
           document.getElementById(prefix + "_pricecur").value  = line.priceCur || "USD";
+          document.getElementById(prefix + "_altcur").value    = line.altCur || "";
           document.getElementById(prefix + "_altamt").value    = line.altAmt || "";
-          document.getElementById(prefix + "_altcur").value    = line.altCur || "GBP";
         }
       });
 
-      // Remove from list so re-adding will replace
       QUOTE_PRODUCTS.splice(index, 1);
       renderQuoteProducts();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -764,8 +814,6 @@
       QUOTE_PRODUCTS[index] = tmp;
       renderQuoteProducts();
     }
-
-    /* ========= QUOTATION GENERATION ========= */
 
     function buildProductText(p) {
       let block = "";
@@ -833,9 +881,41 @@
       alert("Quotation copied!");
     }
 
+    async function onAltCurrencyChange(prefix) {
+      const altEnabled = document.getElementById("enable_alt").checked;
+      if (!altEnabled) return;
+
+      const priceAmtEl = document.getElementById(prefix + "_priceamt");
+      const priceCurEl = document.getElementById(prefix + "_pricecur");
+      const altCurEl   = document.getElementById(prefix + "_altcur");
+      const altAmtEl   = document.getElementById(prefix + "_altamt");
+
+      const amount = parseFloat(priceAmtEl.value);
+      const baseCur = priceCurEl.value;
+      const targetCur = altCurEl.value;
+
+      if (!amount || !baseCur || !targetCur) return;
+
+      const rate = await getFxRate(baseCur, targetCur);
+      if (!rate) return;
+
+      const converted = amount * rate;
+      altAmtEl.value = converted.toFixed(2);
+    }
+
+    function onMainPriceChange(prefix) {
+      const altEnabled = document.getElementById("enable_alt").checked;
+      if (!altEnabled) return;
+      const altCur = document.getElementById(prefix + "_altcur").value;
+      if (altCur) {
+        onAltCurrencyChange(prefix);
+      }
+    }
+
     window.addEventListener("load", () => {
       loadProducts();
       clearProductForm();
+      updateAltVisibility();
     });
   </script>
 </body>
