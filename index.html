@@ -200,7 +200,7 @@
       </div>
     </div>
 
-    <!-- Brand / Composition (optional) -->
+    <!-- Brand / Composition / Alt Currency -->
     <div class="row-3">
       <div>
         <label style="font-weight: normal;">
@@ -216,13 +216,13 @@
         </label>
         <input id="prod_comp" style="display:none;" />
       </div>
-    </div>
-
-    <div class="small-note">
-      <label style="font-weight: normal;">
-        <input type="checkbox" id="enable_alt" checked onchange="updateAltVisibility()" />
-        Alt Currency (show & convert)
-      </label>
+      <div>
+        <label style="font-weight: normal;">Alt Currency</label>
+        <label style="font-weight: normal;">
+          <input type="checkbox" id="enable_alt" checked onchange="updateAltVisibility()" />
+          Enable Alt Currency (show & convert)
+        </label>
+      </div>
     </div>
 
     <!-- Line 1 -->
@@ -514,15 +514,36 @@
     // CurrencyFreaks API key (yours)
     const FX_API_KEY = "0979bb8cef154310a0d57817aa5d3080";
 
+    // Default base rates (1 USD = X currency), grabbed from themoneyconverter.com on 2025-12-10
+    const FX_RATES_DEFAULT = {
+      AED: 3.67135,
+      AUD: 1.50644,
+      BHD: 0.376888,
+      CAD: 1.38498,
+      CHF: 0.803285,
+      CNY: 7.06359,
+      EUR: 0.859298,
+      GBP: 0.750249,
+      HKD: 7.78111,
+      JPY: 156.56,
+      KWD: 0.307062,
+      NZD: 1.72997,
+      QAR: 3.64725,
+      SAR: 3.75324,
+      SGD: 1.29587,
+      USD: 1,
+      ZAR: 17.0017
+    };
+
     let ONLINE_PRODUCTS = [];
     let QUOTE_PRODUCTS = [];
 
-    // FX rate cache
-    let FX_RATES = null;
+    // FX rate cache (starts with defaults, then may be overridden by localStorage or API)
+    let FX_RATES = { ...FX_RATES_DEFAULT };
     const FX_CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
     let FX_ERROR_SHOWN = false;
 
-    // Load FX rates with localStorage caching
+    // Load FX rates with localStorage caching + CurrencyFreaks refresh
     async function loadFxRates() {
       try {
         const storedRaw = localStorage.getItem("mediswift_fx_rates");
@@ -532,18 +553,18 @@
             FX_RATES = stored.rates;
             const ts = stored.timestamp || 0;
             const age = Date.now() - ts;
-            // If fresh enough, just use them
+            // If less than 4h old, just use them
             if (age < FX_CACHE_TTL_MS) {
               return;
             }
-            // If old, we'll still try to refresh below, but FX_RATES is already usable as fallback
+            // If old, we'll still try to refresh from API, but FX_RATES is already usable as fallback
           }
         }
       } catch (e) {
         console.warn("localStorage read error", e);
       }
 
-      // Try to refresh from API
+      // Try to refresh from CurrencyFreaks API
       const url = "https://api.currencyfreaks.com/v1/latest?apikey=" + encodeURIComponent(FX_API_KEY);
       try {
         const res = await fetch(url);
@@ -574,20 +595,22 @@
       if (base === target) return 1;
 
       if (!FX_RATES) {
-        await loadFxRates();
+        FX_RATES = { ...FX_RATES_DEFAULT };
       }
-      if (!FX_RATES) {
-        if (!FX_ERROR_SHOWN) {
-          alert("Live currency rates are temporarily unavailable. Please try again later.");
-          FX_ERROR_SHOWN = true;
-        }
-        return null;
+
+      // ensure we have tried refreshing at least once
+      if (!FX_RATES || !FX_RATES.USD) {
+        await loadFxRates();
       }
 
       const rBase = parseFloat(FX_RATES[base]);
       const rTarget = parseFloat(FX_RATES[target]);
       if (!rBase || !rTarget) {
-        console.error("Missing rate for", base, target, FX_RATES);
+        if (!FX_ERROR_SHOWN) {
+          console.error("Missing rate for", base, target, FX_RATES);
+          alert("Some currency rates are missing or unavailable right now. Conversion may not work for all pairs.");
+          FX_ERROR_SHOWN = true;
+        }
         return null;
       }
       // rate base->target = target_in_USD / base_in_USD
@@ -1085,7 +1108,7 @@
       loadProducts();
       clearProductForm();
       updateAltVisibility();
-      // Pre-load FX rates early (will use cache if available)
+      // Pre-load FX rates early (will use defaults + cache if available)
       loadFxRates();
     });
   </script>
